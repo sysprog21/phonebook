@@ -11,8 +11,14 @@ fi
 
 FILES=`git diff --cached --name-only --diff-filter=ACMR | grep -E "\.(c|cpp|h)$"`
 for FILE in $FILES; do
-    $ASTYLE $OPTIONS < $FILE | cmp -s $FILE -
-    if [ $? -ne 0 ]; then
+    nf=`git checkout-index --temp $FILE | cut -f 1`
+    newfile=`mktemp /tmp/${nf}.XXXXXX` || exit 1
+    $ASTYLE $OPTIONS < $nf > $newfile 2>> /dev/null
+    diff -u -p -B "${nf}" "${newfile}"
+    r=$?
+    rm "${newfile}"
+    rm "${nf}"
+    if [ $r != 0 ] ; then
         echo "[!] $FILE does not follow the consistent coding style." >&2
         RETURN=1
     fi
@@ -21,7 +27,7 @@ done
 if [ $RETURN -eq 1 ]; then
     echo "" >&2
     echo "Make sure you have run astyle as the following:" >&2
-    echo "    astyle $OPTIONS" >&2
+    echo "    astyle $OPTIONS --suffix=none $FILE" >&2
 fi
 
 exit $RETURN

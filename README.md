@@ -10,3 +10,8 @@ To format your file you can execute below command:
 ```sh
 astyle --style=kr --indent=spaces=4 --indent-switches --suffix=none *.[ch]
 ```
+
+Install Git pre-commit hook to check C/C++ source file format
+```sh
+ln -sf ../../scripts/pre-commit.hook .git/hooks/pre-commit
+```

@@ -17,5 +17,8 @@ phonebook_opt: $(SRCS_common) phonebook_opt.c phonebook_opt.h
 run: $(EXEC)
 	watch -d -t ./phonebook_orig
 
+astyle:
+	astyle --style=kr --indent=spaces=4 --indent-switches --suffix=none *.[ch]
+
 clean:
 	$(RM) $(EXEC) *.o perf.*

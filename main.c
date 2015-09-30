@@ -14,8 +14,7 @@ static double diff_in_second(struct timespec t1, struct timespec t2)
     if (t2.tv_nsec-t1.tv_nsec < 0) {
         diff.tv_sec  = t2.tv_sec  - t1.tv_sec  - 1;
         diff.tv_nsec = t2.tv_nsec - t1.tv_nsec + 1000000000;
-    }
-    else {
+    } else {
         diff.tv_sec  = t2.tv_sec  - t1.tv_sec;
         diff.tv_nsec = t2.tv_nsec - t1.tv_nsec;
     }
@@ -30,9 +29,9 @@ int main(int argc, char *argv[])
     struct timespec start, end;
     double cpu_time1, cpu_time2;
 
-    /* check file opening */     
+    /* check file opening */
     fp = fopen(DICT_FILE, "r");
-    if (fp == NULL){
+    if (fp == NULL) {
         printf("cannot open the file\n");
         return -1;
     }
@@ -45,7 +44,7 @@ int main(int argc, char *argv[])
     e->pNext = NULL;
 
 #if defined(__GNUC__)
-     __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
+    __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
 #endif
     clock_gettime(CLOCK_REALTIME, &start);
     while (fgets(line, sizeof(line), fp)) {
@@ -72,7 +71,7 @@ int main(int argc, char *argv[])
     assert(0 == strcmp(findName(input, e)->lastName, "zyxel"));
 
 #if defined(__GNUC__)
-     __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
+    __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
 #endif
     /* compute the execution time */
     clock_gettime(CLOCK_REALTIME, &start);

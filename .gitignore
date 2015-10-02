@@ -7,3 +7,8 @@
 *.bak
 phonebook_opt
 phonebook_orig
+calculate
+orig.txt
+opt.txt
+output.txt
+runtime.png

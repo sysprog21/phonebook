@@ -1,5 +1,7 @@
 CC ?= gcc
-CFLAGS_common ?= -O0 -Wall -std=gnu99
+CFLAGS_common ?= -Wall -std=gnu99
+CFLAGS_orig = -O0
+CFLAGS_opt  = -O0
 
 EXEC = phonebook_orig phonebook_opt
 all: $(EXEC)
@@ -7,11 +9,13 @@ all: $(EXEC)
 SRCS_common = main.c
 
 phonebook_orig: $(SRCS_common) phonebook_orig.c phonebook_orig.h
-	$(CC) $(CFLAGS_common) -DIMPL="\"$@.h\"" -o $@ \
+	$(CC) $(CFLAGS_common) $(CFLAGS_orig) \
+		-DIMPL="\"$@.h\"" -o $@ \
 		$(SRCS_common) $@.c
 
 phonebook_opt: $(SRCS_common) phonebook_opt.c phonebook_opt.h
-	$(CC) $(CFLAGS_common) -DIMPL="\"$@.h\"" -o $@ \
+	$(CC) $(CFLAGS_common) $(CFLAGS_opt) \
+		-DIMPL="\"$@.h\"" -o $@ \
 		$(SRCS_common) $@.c
 
 run: $(EXEC)

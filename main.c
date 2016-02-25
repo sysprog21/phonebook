@@ -81,12 +81,12 @@ int main(int argc, char *argv[])
 
     FILE *output;
 #if defined(OPT)
-	output = fopen("opt.txt", "a");
-#else 
-	output = fopen("orig.txt", "a");
+    output = fopen("opt.txt", "a");
+#else
+    output = fopen("orig.txt", "a");
 #endif
-	fprintf(output, "append() findName() %lf %lf\n", cpu_time1, cpu_time2);
-	fclose(output);
+    fprintf(output, "append() findName() %lf %lf\n", cpu_time1, cpu_time2);
+    fclose(output);
 
     printf("execution time of append() : %lf sec\n", cpu_time1);
     printf("execution time of findName() : %lf sec\n", cpu_time2);

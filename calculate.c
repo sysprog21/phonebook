@@ -18,7 +18,7 @@ int main(void)
             printf("run 'make run' longer to get enough information\n\n");
             exit(0);
         }
-        fscanf(fp, "%s %s %lf %lf\n", append, find,&orig_a, &orig_f);
+        fscanf(fp, "%s %s %lf %lf\n", append, find, &orig_a, &orig_f);
         orig_sum_a += orig_a;
         orig_sum_f += orig_f;
     }
@@ -39,7 +39,7 @@ int main(void)
             printf("run 'make run' longer to get enough information\n\n");
             exit(0);
         }
-        fscanf(fp, "%s %s %lf %lf\n", append, find,&opt_a, &opt_f);
+        fscanf(fp, "%s %s %lf %lf\n", append, find, &opt_a, &opt_f);
         opt_sum_a += opt_a;
         opt_sum_f += opt_f;
     }

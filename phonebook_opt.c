@@ -3,7 +3,7 @@
 #include "phonebook_opt.h"
 
 /* FILL YOUR OWN IMPLEMENTATION HERE! */
-entry *findName(char lastname[], entry *pHead)
+entry *findName(char lastName[], entry *pHead)
 {
     /* TODO: implement */
     return NULL;

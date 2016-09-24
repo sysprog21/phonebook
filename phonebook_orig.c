@@ -6,10 +6,10 @@
 #include "phonebook_orig.h"
 
 /* original version */
-entry *findName(char lastname[], entry *pHead)
+entry *findName(char lastName[], entry *pHead)
 {
     while (pHead != NULL) {
-        if (strcasecmp(lastname, pHead->lastName) == 0)
+        if (strcasecmp(lastName, pHead->lastName) == 0)
             return pHead;
         pHead = pHead->pNext;
     }

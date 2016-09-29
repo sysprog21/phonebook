@@ -24,11 +24,14 @@ static double diff_in_second(struct timespec t1, struct timespec t2)
 int main(int argc, char *argv[])
 {
     FILE *fp;
-    int i = 0;
+    int i = 0, total=0;
     char line[MAX_LAST_NAME_SIZE];
     struct timespec start, end;
     double cpu_time1, cpu_time2;
 
+	//getpid
+	printf("pid: %d\n", getpid() );
+	
     /* check file opening */
     fp = fopen(DICT_FILE, "r");
     if (fp == NULL) {
@@ -53,7 +56,14 @@ int main(int argc, char *argv[])
         line[i - 1] = '\0';
         i = 0;
         e = append(line, e);
+		total++;
     }
+
+#if defined(BST)
+	//bst
+	bst *root = build_bst(&pHead, total);
+#endif
+	
     clock_gettime(CLOCK_REALTIME, &end);
     cpu_time1 = diff_in_second(start, end);
 
@@ -66,16 +76,33 @@ int main(int argc, char *argv[])
     char input[MAX_LAST_NAME_SIZE] = "zyxel";
     e = pHead;
 
+	
+#if defined(BST)
+    assert(findName(input, root) &&
+           "Did you implement findName() in " IMPL "?");
+    assert(0 == strcmp(findName(input, root)->data->lastName, "zyxel"));
+#else
     assert(findName(input, e) &&
            "Did you implement findName() in " IMPL "?");
     assert(0 == strcmp(findName(input, e)->lastName, "zyxel"));
+#endif
+
 
 #if defined(__GNUC__)
     __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
 #endif
-    /* compute the execution time */
-    clock_gettime(CLOCK_REALTIME, &start);
+
+	clock_gettime(CLOCK_REALTIME, &start);
+//bst findname
+#if defined(BST)
+    findName(input, root);
+#else
     findName(input, e);
+#endif
+
+    /* compute the execution time */
+
+    //findName(input, e);
     clock_gettime(CLOCK_REALTIME, &end);
     cpu_time2 = diff_in_second(start, end);
 

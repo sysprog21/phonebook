@@ -4,10 +4,15 @@
 #include <time.h>
 #include <assert.h>
 
+#include <sys/types.h>
+#include <unistd.h>
+
 #include IMPL
 
 #define DICT_FILE "./dictionary/words.txt"
+#define GIVEN_NAME "zyxel"
 
+//function prototype
 static double diff_in_second(struct timespec t1, struct timespec t2)
 {
     struct timespec diff;
@@ -24,102 +29,150 @@ static double diff_in_second(struct timespec t1, struct timespec t2)
 int main(int argc, char *argv[])
 {
     FILE *fp;
-    int i = 0, total=0;
-    char line[MAX_LAST_NAME_SIZE];
+    int list_len=0;
+    char buff[MAX_LAST_NAME_SIZE];
     struct timespec start, end;
-    double cpu_time1, cpu_time2;
+    double append_time, find_time;
 
 	//getpid
-	printf("pid: %d\n", getpid() );
+//	printf("pid: %d\n", getpid() );
 	
-    /* check file opening */
+    // check file opening
     fp = fopen(DICT_FILE, "r");
     if (fp == NULL) {
         printf("cannot open the file\n");
         return -1;
     }
 
-    /* build the entry */
+#if defined(__HASH__)
+	HashTable *hashArray = (HashTable *)malloc( sizeof(HashTable) * TABLE_SIZE );
+	init_hash_table( hashArray );
+	printf("size of hash item : %lu bytes\n", sizeof(HashItem));
+#else
+    // build the head entry
+	//printf("pid: %d\n", getpid() );
     entry *pHead, *e;
     pHead = (entry *) malloc(sizeof(entry));
     printf("size of entry : %lu bytes\n", sizeof(entry));
     e = pHead;
     e->pNext = NULL;
+	#if defined(__BST__)
+	printf("size of tree node : %lu bytes\n", sizeof(BST));
+	#endif
+#endif
 
-#if defined(__GNUC__)
+#if defined(__HASH__)
+    __builtin___clear_cache((char *) hashArray, (char *) hashArray + sizeof(TABLE_SIZE));
+#elif defined(__GNUC__)
     __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
 #endif
-    clock_gettime(CLOCK_REALTIME, &start);
-    while (fgets(line, sizeof(line), fp)) {
-        while (line[i] != '\0')
-            i++;
-        line[i - 1] = '\0';
-        i = 0;
-        e = append(line, e);
-		total++;
-    }
-
-#if defined(BST)
-	//bst
-	bst *root = build_bst(&pHead, total);
-#endif
 	
-    clock_gettime(CLOCK_REALTIME, &end);
-    cpu_time1 = diff_in_second(start, end);
-
+    clock_gettime(CLOCK_REALTIME, &start);
+    while (fgets(buff, sizeof(buff), fp)) {
+        buff[ strlen(buff)-1 ] = '\0';
+#if defined(__HASH__)
+		int key = hash_func(buff);
+		hash_append(hashArray, buff, key);
+#else
+        e = append(buff, e);
+#endif
+		list_len++;
+    }
     /* close file as soon as possible */
     fclose(fp);
 
-    e = pHead;
+
+
+#if defined(__BST__)
+	e = pHead;
+	BST *root = sortedListToBSTRecur( &e, list_len);
+#endif
+
+    clock_gettime(CLOCK_REALTIME, &end);
+    append_time = diff_in_second(start, end);
+
+
 
     /* the givn last name to find */
-    char input[MAX_LAST_NAME_SIZE] = "zyxel";
-    e = pHead;
+    char input[MAX_LAST_NAME_SIZE] = GIVEN_NAME;
 
-	
-#if defined(BST)
-    assert(findName(input, root) &&
+
+/*#if defined(__BST__)
+	assert(BSTfindName(input, root) &&
            "Did you implement findName() in " IMPL "?");
-    assert(0 == strcmp(findName(input, root)->data->lastName, "zyxel"));
+    assert(0 == strcmp(BSTfindName(input, root)->data, "zyxel"));
 #else
     assert(findName(input, e) &&
            "Did you implement findName() in " IMPL "?");
     assert(0 == strcmp(findName(input, e)->lastName, "zyxel"));
 #endif
+*/
 
 
-#if defined(__GNUC__)
-    __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
-#endif
+/*#if defined(__SMALL_STRUCT__)&defined(__GNUC__)
+	__builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
 
 	clock_gettime(CLOCK_REALTIME, &start);
-//bst findname
-#if defined(BST)
-    findName(input, root);
-#else
-    findName(input, e);
+	findName(input, e);
+    clock_gettime(CLOCK_REALTIME, &end);
+	
+    find_time = diff_in_second(start, end);
+*/
+
+#if defined(__BST__)&defined(__GNUC__)
+	__builtin___clear_cache((char *) root, (char *) root + sizeof(BST));
+	e = pHead;
+	clock_gettime(CLOCK_REALTIME, &start);
+	BSTfindName(input, root);
+    clock_gettime(CLOCK_REALTIME, &end);
+
+    find_time = diff_in_second(start, end);
+	freeBST(root);
+#elif defined(__HASH__)&defined(__GNUC__)
+    __builtin___clear_cache((char *) hashArray, (char *) hashArray + sizeof(TABLE_SIZE));
+
+	clock_gettime(CLOCK_REALTIME, &start);
+	hash_findName(hashArray, hash_func(input)%TABLE_SIZE, input );
+    clock_gettime(CLOCK_REALTIME, &end);
+
+	find_time = diff_in_second(start, end);
+#elif defined(__GNUC__)
+	__builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
+	e = pHead;
+	clock_gettime(CLOCK_REALTIME, &start);
+	findName(input, e);
+    clock_gettime(CLOCK_REALTIME, &end);
+
+	find_time = diff_in_second(start, end);
 #endif
 
-    /* compute the execution time */
 
-    //findName(input, e);
-    clock_gettime(CLOCK_REALTIME, &end);
-    cpu_time2 = diff_in_second(start, end);
 
     FILE *output;
-#if defined(OPT)
-    output = fopen("opt.txt", "a");
+#if defined(__SMALL_STRUCT__)
+    output = fopen("small_struct.txt", "a");
+#elif defined(__BST__)
+	output = fopen("bst.txt", "a");
+#elif defined(__HASH__)
+	output = fopen("hash.txt", "a");
 #else
-    output = fopen("orig.txt", "a");
+	output = fopen("orig.txt", "a");
 #endif
-    fprintf(output, "append() findName() %lf %lf\n", cpu_time1, cpu_time2);
+	fprintf(output, "append() findName() %lf %lf\n", append_time, find_time);
     fclose(output);
+    printf("execution time of append() : %lf sec\n", append_time);
+    printf("execution time of findName() : %lf sec\n", find_time);
 
-    printf("execution time of append() : %lf sec\n", cpu_time1);
-    printf("execution time of findName() : %lf sec\n", cpu_time2);
-
-    if (pHead->pNext) free(pHead->pNext);
-    free(pHead);
+	
+#if defined(__HASH__)
+	free_hash_table(hashArray);
+#else
+	while((e = pHead)){
+		pHead = pHead->pNext;
+		free(e);
+	}
+#endif
 
     return 0;
 }
+

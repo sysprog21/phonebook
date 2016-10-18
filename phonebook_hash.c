@@ -6,17 +6,14 @@
 #include "phonebook_hash.h"
 
 /* FILL YOUR OWN IMPLEMENTATION HERE! */
-entry *findName(char lastname[], entry *e[])
+entry *findName(char lastname[], hashTable *ht)
 {
     /* TODO: implement */
-    entry *tmp;
-    unsigned int n = BKDRHash(lastname);
-    /*judge if e[n] has value*/
-    if(e[n]->pNext) {
-        tmp = e[n]->pNext;
-    } else return NULL;
+    entry *tmp = NULL;
+    unsigned int hash = BKDRHash(lastname);
     /*findname*/
-    while(tmp) {
+    while(ht->list[hash]) {
+        tmp = ht->list[hash];
         if (strcasecmp(lastname, tmp->lastName) == 0)
             return tmp;
         tmp = tmp->pNext;
@@ -24,40 +21,53 @@ entry *findName(char lastname[], entry *e[])
     return NULL;
 }
 
-void append(char lastName[], entry *e[])
+void append(char lastName[], hashTable *ht)
 {
     entry *tmp;
-    unsigned int n=BKDRHash(lastName);
-    /*if e[n] has no data*/
-    if (e[n]->pNext== NULL) tmp = e[n];
-    else tmp = e[n]->pNext;
-    tmp->pNext = (entry *) malloc(sizeof(entry));
-    tmp = tmp->pNext;
+    unsigned int hash = BKDRHash(lastName);
+    tmp = (entry *) malloc(sizeof(entry));
+
+    tmp->pNext = ht->list[hash];
     strcpy(tmp->lastName, lastName);
-    tmp->pNext = NULL;
-    e[n]=tmp;
+    ht->list[hash]=tmp;
 }
 
-unsigned int BKDRHash(char lastName[])
+hashTable *hashTableInitial()
+{
+    hashTable *ht = NULL;
+    ht = (hashTable *)malloc(sizeof(hashTable));
+    ht->list =(entry **)malloc(sizeof(entry *)*SIZE);
+    int i =0;
+    while(i<SIZE) {
+        ht->list[i] =NULL;
+        i++;
+    }
+
+    return ht;
+}
+
+unsigned int BKDRHash(char *str)
 {
     unsigned int seed=31;
     unsigned int hash=0;
-    int i=0;
-    while(i<strlen(lastName)) {
-        hash = hash * seed + lastName[i++];
-
+    int i = 0;
+    while(i<strlen(str)) {
+        hash = hash * seed + *str++ ;
     }
 
-    return hash %= SIZE;
+    return hash % SIZE;
 }
 
-void Free_List(entry *e)
+void freeHashList(hashTable *ht)
 {
-    entry *tmp;
-    while(e) {
-        tmp = e->pNext;
-        free(e);
-        e = tmp;
+    for(int i=0; i<SIZE; i++) {
+        entry *tmp = NULL;
+        while(ht->list[i]) {
+            tmp = (ht->list[i])->pNext;
+            free(ht->list[i]);
+            ht->list[i] = tmp;
+        }
     }
+    free(ht);
 }
 

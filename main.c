@@ -36,21 +36,14 @@ int main(int argc, char *argv[])
         return -1;
     }
 #if defined (HASH)
-    entry *pHead[SIZE],*e[SIZE];	//malloc pHead[],use e[] to point pHead[]
-    printf("size of entry : %lu bytes\n", sizeof(entry));
-    for(i=0; i<SIZE; ++i) {		//why?
-        pHead[i]=(entry *) malloc(sizeof(entry));
-        e[i]=pHead[i];
-        e[i]->pNext=NULL;
-    }
-#else
-    /* build the entry */
+    hashTable *ht = hashTableInitial();
+#endif
+
     entry *pHead, *e;
     pHead = (entry *) malloc(sizeof(entry));
     printf("size of entry : %lu bytes\n", sizeof(entry));
     e = pHead;
     e->pNext = NULL;
-#endif
 
 
 #if defined(__GNUC__)
@@ -63,7 +56,7 @@ int main(int argc, char *argv[])
         line[i - 1] = '\0';
         i = 0;
 #if defined (HASH)
-        append(line,e);
+        append(line,ht);
 #else
         e = append(line, e);
 #endif
@@ -79,29 +72,43 @@ int main(int argc, char *argv[])
     /* close file as soon as possible */
     fclose(fp);
 
-#if defined (HASH)
-    for(i=0; i<SIZE; ++i) {
-        e[i] = pHead[i];
-    }
-#else
     e = pHead;
-#endif
 
 
     /* the givn last name to find */
     char input[MAX_LAST_NAME_SIZE] = "zyxel";
     // e = pHead;
 
+
+
+#if defined (HASH)
+    assert(findName(input, ht) &&
+           "Did you implement findName() in " IMPL "?");
+    assert(0 == strcmp(findName(input, ht)->lastName, "zyxel"));
+#else
     assert(findName(input, e) &&
            "Did you implement findName() in " IMPL "?");
     assert(0 == strcmp(findName(input, e)->lastName, "zyxel"));
+#endif
+
+
+
+
 
 #if defined(__GNUC__)
     __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
 #endif
     /* compute the execution time */
     clock_gettime(CLOCK_REALTIME, &start);
+
+
+#if defined (HASH)
+    findName(input, ht);
+#else
     findName(input, e);
+#endif
+
+
     clock_gettime(CLOCK_REALTIME, &end);
     cpu_time2 = diff_in_second(start, end);
 
@@ -123,12 +130,7 @@ int main(int argc, char *argv[])
 
 
 #if defined(HASH)
-    for(i=0; i<SIZE; ++i) {
-        if(pHead[i]->pNext) {
-            Free_List(pHead[i]);
-            pHead[i] = NULL;
-        }
-    }
+    freeHashList(ht);
 #else
     if (pHead->pNext) free(pHead->pNext);
     free(pHead);

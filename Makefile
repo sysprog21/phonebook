@@ -1,4 +1,4 @@
-C ?= gcc
+CC ?= gcc
 CFLAGS_common ?= -Wall -g -std=gnu99
 CFLAGS_orig = -O0
 CFLAGS_opt  = -O0
@@ -16,12 +16,12 @@ phonebook_orig: $(SRCS_common) phonebook_orig.c phonebook_orig.h
 
 phonebook_opt: $(SRCS_common) phonebook_opt.c phonebook_opt.h
 	$(CC) $(CFLAGS_common) $(CFLAGS_opt) \
-		-DIMPL="\"$@.h\"" -o $@ \
+		-DOPT  -DIMPL="\"$@.h\"" -o $@ \
 		$(SRCS_common) $@.c
 
 phonebook_hash: $(SRCS_common) phonebook_hash.c phonebook_hash.h
 	$(CC) $(CFLAGS_common) $(CFLAGS_hash) \
-		-DIMPL="\"$@.h\"" -o $@ \
+		-DHASH -DIMPL="\"$@.h\"" -o $@ \
 		$(SRCS_common) $@.c
 
 run: $(EXEC)

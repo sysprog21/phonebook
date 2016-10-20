@@ -35,13 +35,16 @@ int main(int argc, char *argv[])
         printf("cannot open the file\n");
         return -1;
     }
+#if defined (HASH)
+    hashTable *ht = hashTableInitial();
+#endif
 
-    /* build the entry */
     entry *pHead, *e;
     pHead = (entry *) malloc(sizeof(entry));
     printf("size of entry : %lu bytes\n", sizeof(entry));
     e = pHead;
     e->pNext = NULL;
+
 
 #if defined(__GNUC__)
     __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
@@ -52,7 +55,16 @@ int main(int argc, char *argv[])
             i++;
         line[i - 1] = '\0';
         i = 0;
+#if defined (HASH)
+        append(line,ht);
+#else
         e = append(line, e);
+#endif
+
+
+
+
+
     }
     clock_gettime(CLOCK_REALTIME, &end);
     cpu_time1 = diff_in_second(start, end);
@@ -62,28 +74,52 @@ int main(int argc, char *argv[])
 
     e = pHead;
 
+
     /* the givn last name to find */
     char input[MAX_LAST_NAME_SIZE] = "zyxel";
-    e = pHead;
+    // e = pHead;
 
+
+
+#if defined (HASH)
+    assert(findName(input, ht) &&
+           "Did you implement findName() in " IMPL "?");
+    assert(0 == strcmp(findName(input, ht)->lastName, "zyxel"));
+#else
     assert(findName(input, e) &&
            "Did you implement findName() in " IMPL "?");
     assert(0 == strcmp(findName(input, e)->lastName, "zyxel"));
+#endif
+
+
+
+
 
 #if defined(__GNUC__)
     __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
 #endif
     /* compute the execution time */
     clock_gettime(CLOCK_REALTIME, &start);
+
+
+#if defined (HASH)
+    findName(input, ht);
+#else
     findName(input, e);
+#endif
+
+
     clock_gettime(CLOCK_REALTIME, &end);
     cpu_time2 = diff_in_second(start, end);
 
     FILE *output;
 #if defined(OPT)
     output = fopen("opt.txt", "a");
+#elif defined(HASH)
+    output = fopen("hash.txt","a");
 #else
     output = fopen("orig.txt", "a");
+
 #endif
     fprintf(output, "append() findName() %lf %lf\n", cpu_time1, cpu_time2);
     fclose(output);
@@ -91,8 +127,14 @@ int main(int argc, char *argv[])
     printf("execution time of append() : %lf sec\n", cpu_time1);
     printf("execution time of findName() : %lf sec\n", cpu_time2);
 
+
+
+#if defined(HASH)
+    freeHashList(ht);
+#else
     if (pHead->pNext) free(pHead->pNext);
     free(pHead);
+#endif
 
     return 0;
 }

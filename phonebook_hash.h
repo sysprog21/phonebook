@@ -1,13 +1,8 @@
 #ifndef _PHONEBOOK_H
 #define _PHONEBOOK_H
+#define HASH 1
 #define MAX_LAST_NAME_SIZE 16
-
-/* TODO: After modifying the original version, uncomment the following
- * line to set OPT properly */
-/*phonebook only search lastname so we reduce the __PHONE_BOOK_ENTRY
- *size from 136 byte to 32 byte */
-//#define OPT 1
-
+#define SIZE 9971
 
 typedef struct __PHONE_BOOK_DETAIL {
     char firstName[16];
@@ -29,7 +24,16 @@ typedef struct __PHONE_BOOK_ENTRY {
     struct __PHONE_BOOK_ENTRY *pNext;
 } entry;
 
-entry *findName(char lastName[], entry *pHead);
-entry *append(char lastName[], entry *e);
 
+typedef struct __HASH_TABLE {
+    entry **list ;
+} hashTable;
+
+
+
+entry *findName(char lastname[], hashTable *ht);
+void append(char lastName[], hashTable *ht);
+void freeHashList(hashTable * ht);
+hashTable *hashTableInitial(void);
+unsigned int BKDRHash(char *str);
 #endif

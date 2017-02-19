@@ -6,6 +6,12 @@
 
 #include IMPL
 
+#ifdef OPT
+#define OUT_FILE "opt.txt"
+#else
+#define OUT_FILE "orig.txt"
+#endif
+
 #define DICT_FILE "./dictionary/words.txt"
 
 static double diff_in_second(struct timespec t1, struct timespec t2)
@@ -79,12 +85,7 @@ int main(int argc, char *argv[])
     clock_gettime(CLOCK_REALTIME, &end);
     cpu_time2 = diff_in_second(start, end);
 
-    FILE *output;
-#if defined(OPT)
-    output = fopen("opt.txt", "a");
-#else
-    output = fopen("orig.txt", "a");
-#endif
+    FILE *output = fopen(OUT_FILE, "a");
     fprintf(output, "append() findName() %lf %lf\n", cpu_time1, cpu_time2);
     fclose(output);
 

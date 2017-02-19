@@ -4,7 +4,14 @@ CFLAGS_orig = -O0
 CFLAGS_opt  = -O0
 
 EXEC = phonebook_orig phonebook_opt
-all: $(EXEC)
+
+GIT_HOOKS := .git/hooks/pre-commit
+.PHONY: all
+all: $(GIT_HOOKS) $(EXEC)
+
+$(GIT_HOOKS):
+	@scripts/install-git-hooks
+	@echo
 
 SRCS_common = main.c
 

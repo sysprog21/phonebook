@@ -5,7 +5,7 @@ CFLAGS_opt  = -O0
 
 EXEC = phonebook_orig phonebook_opt
 
-GIT_HOOKS := .git/hooks/pre-commit
+GIT_HOOKS := .git/hooks/applied
 .PHONY: all
 all: $(GIT_HOOKS) $(EXEC)
 

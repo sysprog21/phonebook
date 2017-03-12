@@ -12,7 +12,7 @@ fi
 
 CPPCHECK=$(which cppcheck)
 if [ $? -ne 0 ]; then
-    echo "[!] cppecheck not installed. Unable to perform static analysis." >&2
+    echo "[!] cppcheck not installed. Unable to perform static analysis." >&2
     exit 1
 fi
 

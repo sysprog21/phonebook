@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     /* build the entry */
     entry *pHead, *e;
     pHead = (entry *) malloc(sizeof(entry));
-    printf("size of entry : %lu bytes\n", sizeof(entry));
+    printf("size of entry : %zu bytes\n", sizeof(entry));
     e = pHead;
     e->pNext = NULL;
 
